@@ -1,103 +1,109 @@
-var currentTheme = "%s"
-var desktopTheme = "%s";
-var mobileTheme = "%s";
-var contextPath = "%s";
-var appId = "%s";
-var appVersion = "%s";
-var desktopMessage = "@@org.marketplace.ThemeSwitch.desktopToast@@";
-var mobileMessage = "@@org.marketplace.ThemeSwitch.mobileToast@@";
-
 $(document).ready(function () {
+    var currentTheme = "%s"
+    var desktopTheme = "%s";
+    var mobileTheme = "%s";
+    var contextPath = "%s";
+    var appId = "%s";
+    var appVersion = "%s";
+    var desktopMessage = "@@org.marketplace.ThemeSwitch.desktopToast@@";
+    var mobileMessage = "@@org.marketplace.ThemeSwitch.mobileToast@@";
+
     $("#themeToggle").siblings(".toggle-group").click(function (e) {
         var toggle = $("#themeToggle").prop("checked");
-        var theme = desktopTheme;
-        localStorage.setItem("themeChangedManually", "true");
+        if (isMobile){
+            if (localStorage.getItem("themeChangedManually") === 'true'){
+                localStorage.removeItem("themeChangedManually");
+            }else{
+                localStorage.setItem("themeChangedManually", "true");
+            }
+        }
         if (toggle){
-            toggleThemeSwitch(theme); 
-        }else{
-            location.reload();
+            toggleThemeSwitch(mobileTheme); 
+        }
+        else{
+            toggleThemeSwitch(desktopTheme)
         }
     });
 
     function toggleThemeSwitch(theme) {
-        $.ajax({
-            url: contextPath + "/web/json/plugin/org.marketplace.themeSwitch.ThemeSwitch/service?switch_theme=" + theme + "&appId=" + appId + "&appVersion=" + appVersion + "&uId=" + UI.userview_id,
-            success: function (data) {
-                location.reload();
+        var mobile="";
+        if (theme === mobileTheme){
+            mobile = "&mobileTheme=true";
+        }
+        if (theme === mobileTheme && currentTheme !== mobileTheme){
+            
+            if (currentTheme === "org.joget.marketplace.OnsenMobileTheme"){
+                $("<div id='themeSwitchToast' style='visibility:hidden;opacity:0;z-index:1000;width:fit-content;min-width: 150px;height: 50px;position:absolute;top:10%%;left:50%%;transform:translate(-50%%, -50%%);background-color: #698a3a;color: #FFFFFF;display: flex;align-items: center;justify-content: center;border-radius: 2px;padding: 16px;text-align: center;'>" + mobileMessage + "</div>").appendTo("ons-splitter-content .page__content").css('visibility', 'visible').animate({opacity: 1}, 1000);
+            }else{
+                $("<div id='themeSwitchToast' style='visibility:hidden;opacity:0;z-index:1000;width:fit-content;min-width: 150px;height: 50px;position:absolute;top:10%%;left:50%%;transform:translate(-50%%, -50%%);background-color: #698a3a;color: #FFFFFF;display: flex;align-items: center;justify-content: center;border-radius: 2px;padding: 16px;text-align: center;'>" + mobileMessage + "</div>").appendTo("body").css('visibility', 'visible').animate({opacity: 1}, 1000);
             }
-        });
+
+            setTimeout(function(){
+                $("#themeSwitchToast").remove();
+            }, 2000);
+
+            $.ajax({
+                url: contextPath + "/web/json/plugin/org.marketplace.themeSwitch.ThemeSwitch/service?switch_theme=" + theme + "&appId=" + appId + "&appVersion=" + appVersion + "&uId=" + UI.userview_id+"&menuId="+window.location.href.split('/').pop()+mobile,
+                success: function (data) {
+                    // Get the current URL
+                    var currentUrl = window.location.href;
+    
+                    // Regular expression to match the appId/userviewId pattern
+                    var regex = new RegExp(appId + "/" +UI.userview_id);
+    
+                    // Replace the matched part with the updated appId and userviewId
+                    var newUrl = currentUrl.replace(regex, appId + "/" + data["uid"]);
+    
+                    window.location.href = newUrl
+                }
+            });
+        }else if(theme === desktopTheme && currentTheme === mobileTheme){
+            // Get the current URL
+            var currentUrl = window.location.href;
+    
+            // Regular expression to match the appId/userviewId pattern
+            var regex = new RegExp(appId + "/" +UI.userview_id); // Matches "/appId/anyUserviewId"
+
+            // Replace the matched part with the updated appId and userviewId
+            var newUrl = currentUrl.replace(regex, appId + "/" + UI.userview_id.replace("_mobile", ""));
+            
+            if (currentTheme === "org.joget.marketplace.OnsenMobileTheme"){
+                $("<div id='themeSwitchToast' style='visibility:hidden;opacity:0;z-index:1000;width:fit-content;min-width: 150px;height: 50px;position:absolute;top:10%%;left:50%%;transform:translate(-50%%, -50%%);background-color: #698a3a;color: #FFFFFF;display: flex;align-items: center;justify-content: center;border-radius: 2px;padding: 16px;text-align: center;'>" + desktopMessage + "</div>").appendTo("ons-splitter-content .page__content").css('visibility', 'visible').animate({opacity: 1}, 1000);
+            }else{
+                $("<div id='themeSwitchToast' style='visibility:hidden;opacity:0;z-index:1000;width:fit-content;min-width: 150px;height: 50px;position:absolute;top:10%%;left:50%%;transform:translate(-50%%, -50%%);background-color: #698a3a;color: #FFFFFF;display: flex;align-items: center;justify-content: center;border-radius: 2px;padding: 16px;text-align: center;'>" + desktopMessage + "</div>").appendTo("body").css('visibility', 'visible').animate({opacity: 1}, 1000);
+            }
+
+            setTimeout(function(){
+                $("#themeSwitchToast").remove();
+            }, 2000);
+
+            setTimeout(function(){
+                window.location.href = newUrl
+            }, 3000);
+        }
     }
     
     //Check if mobile or not, if it is, switch to mobile theme
     var isMobile = window.matchMedia("only screen and (max-width: 480px)").matches;
-    if (isMobile && currentTheme !== mobileTheme){
-        if (localStorage.getItem("themeChangedManually") === 'true'){
-            localStorage.removeItem("themeChangedManually");
-            showToast(desktopMessage);
-        }else{
-            localStorage.setItem("switchedAutomatically", "true");
+    if (isMobile && !UI.userview_id.includes("_mobile")){
+        if (localStorage.getItem("themeChangedManually") === null){
             toggleThemeSwitch(mobileTheme);
         }
     }
-    
-    //If current theme is mobile theme, shot toast, and set the toggle to off
-    if (currentTheme === mobileTheme){
-        if (localStorage.getItem('switchedAutomatically')){
-            localStorage.removeItem('switchedAutomatically');
-            showToast(mobileMessage);
-        }else if (localStorage.getItem("themeChangedManually") === 'true'){
-            localStorage.removeItem("themeChangedManually");
-            showToast(mobileMessage);
-        }
 
-        $('#themeToggle').bootstrapToggle("off");
-    }else{
-        if (localStorage.getItem('themeChangedManually')){
-            localStorage.removeItem('themeChangedManually');
-            showToast(desktopMessage);
-        }
-        $('#themeToggle').bootstrapToggle("on");
-    }
-    
-    //Once page is loaded, send back to back end, so the UI theme is revert back
-    //so that it won't use the mobile theme for the UI Builder setting
-    if (currentTheme !== desktopTheme){
-        $.ajax({
-            url: contextPath + "/web/json/plugin/org.marketplace.themeSwitch.ThemeSwitch/service?revert_theme=" + desktopTheme + "&appId=" + appId + "&appVersion=" + appVersion + "&uId=" + UI.userview_id,
-            success: function (data) {
-            }
-        });
-    }
-    
     //Specfic for Onsen theme
     $(document).off('click', 'ons-list-item .menu-link').on('click', 'ons-list-item .menu-link', function(event) {
         if ($(event.target).find("#themeToggle").length === 1) {
             $(event.target).find("#themeToggle").siblings(".toggle-group").click();
         }
     });
-
-    //Currently the toast message only work for DX8 Theme, because,
-    //non DX8's bootstrap does not have toast
-    function showToast(message) {
-        var toastHtml = $('<div class="toast-container position-fixed p-3" style="top: 10%%; left: 50%%; transform: translateX(-50%%);" id="themeToast"><div class="toast align-items-center text-bg-primary border-0" role="alert" aria-live="assertive" aria-atomic="true"><div class="d-flex"><div class="toast-body">' + message + '</div><button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close" style="border:0;background-color:transparent;"><i class="zmdi zmdi-close"></i></button></div></div></div>');
     
-        // Append the toast to the body (or any container)
-        $('body').append(toastHtml);
-    
-        // Initialize the toast
-        var options = {
-            delay: 1000
-        };
-        $('#themeToast .toast').toast(options);
-        $('#themeToast .toast').toast('show');
-        $('#themeToast .toast button').off('click').on('click', function(){
-            $(this).closest('#themeToast').remove();
-        });
-    
-        setTimeout(function () {
-            $('#themeToast').remove();
-        }, 1100);
+    if (!isMobile && localStorage.getItem("themeChangedManually") === 'true'){
+        localStorage.removeItem("themeChangedManually");
     }
     
+    if(UI.userview_id.includes("_mobile")){
+        $("#themeToggle").bootstrapToggle("off");
+    }
 })
 
