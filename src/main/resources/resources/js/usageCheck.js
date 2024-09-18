@@ -1,9 +1,6 @@
 $(document).ready(function(){
     var themeToggles = $("li.menu").has("input#themeToggle");
     var liSelector = $("#%s");
-    console.log(themeToggles);
-    console.log(liSelector)
-    console.log(liSelector.length && themeToggles.length && liSelector[0] !== themeToggles.first()[0])
     if (liSelector.length && themeToggles.length && liSelector[0] !== themeToggles.first()[0]) {
         liSelector.find("div.toggle").hide();
     }else{
