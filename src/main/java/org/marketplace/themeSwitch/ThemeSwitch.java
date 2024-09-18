@@ -67,7 +67,7 @@ public class ThemeSwitch extends UserviewMenu implements PluginWebSupport {
 
     @Override
     public String getIcon() {
-        return null;
+        return "<i class=\"fas fa-toggle-on\"></i>";
     }
 
     @Override
