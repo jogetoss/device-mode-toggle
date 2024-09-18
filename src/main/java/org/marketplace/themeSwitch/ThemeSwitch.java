@@ -7,9 +7,13 @@ import org.joget.apps.app.model.UserviewDefinition;
 import org.joget.apps.app.service.AppPluginUtil;
 import org.joget.apps.app.service.AppService;
 import org.joget.apps.app.service.AppUtil;
+import org.joget.apps.userview.model.Userview;
 import org.joget.apps.userview.model.UserviewCategory;
 import org.joget.apps.userview.model.UserviewMenu;
 import org.joget.apps.userview.model.UserviewSetting;
+import org.joget.apps.userview.service.UserviewService;
+import org.joget.apps.userview.service.UserviewThemeProcesser;
+import org.joget.apps.userview.service.UserviewUtil;
 import org.joget.commons.util.ResourceBundleUtil;
 import org.joget.commons.util.SecurityUtil;
 import org.joget.commons.util.StringUtil;
@@ -24,11 +28,13 @@ import org.json.JSONObject;
 import org.json.JSONArray;
 import org.springframework.context.ApplicationContext;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.ResourceBundle;
 
 public class ThemeSwitch extends UserviewMenu implements PluginWebSupport {
     private final static String MESSAGE_PATH = "messages/ThemeSwitch";
+    private String themeAltProperties = "";
 
     public String getName() {
         return "Theme Switcher";
@@ -75,23 +81,27 @@ public class ThemeSwitch extends UserviewMenu implements PluginWebSupport {
        
         if (getPropertyString("themeAlternative") != null && !getPropertyString("themeAlternative").isEmpty())
         {
+            boolean isPreview = "true".equals(getRequestParameter("isPreview"));
+            themeAltProperties = this.getPropertyString("themeAlternative");
             String label = this.getPropertyString("label");
             if (label != null) {
                 label = StringUtil.stripHtmlRelaxed(label);
             }
 
             menu += "<a class='menu-link default'><span>" + label + "</span>\n" +
-                    "  <input id=\"themeToggle\" data-on=\"<i class='fas fa-desktop'></i>\" data-off=\"<i class='fas fa-mobile-alt'></i>\" type=\"checkbox\" checked data-toggle=\"toggle\" data-style=\"ios\" data-size=\"mini\">\r\n" + //
+                    "  <input id=\"themeToggle\" data-width=\"35\" data-height=\"22\" data-on=\"<i class='fas fa-desktop'></i>\" data-size=\"mini\" data-offstyle=\"danger\" data-off=\"<i class='fas fa-mobile-alt'></i>\" type=\"checkbox\" checked data-toggle=\"toggle\" data-style=\"ios\">\r\n" + //
                     "</a>\n";
             menu += "<script>" + AppUtil.readPluginResource(getClassName(), "/resources/js/bootstrap4-toggle.min.js", null, false , MESSAGE_PATH) + "</script>";
             menu += "<style>\n" + 
-                    ".toggle.ios, .toggle-on.ios, .toggle-off.ios { border-radius: 20px; }.toggle.ios .toggle-handle { border-radius: 20px; }\n" +
                     AppUtil.readPluginResource(getClassName(), "/resources/css/bootstrap4-toggle.min.css", null, true , MESSAGE_PATH) +     
                     "\n</style>";
-                    
+            String id = getPropertyString("id");
+            menu += "<script>" + AppUtil.readPluginResource(getClassName(), "/resources/js/usageCheck.js", new Object[]{id, isPreview}, false , MESSAGE_PATH) + "</script>";
+
             //Add the Script and Stylesheet
-            if (!"true".equals(getRequestParameter("isPreview"))){
+            if (!isPreview){
                 String desktopTheme = "";
+                String mobileTheme = "";
                 String contextPath = AppUtil.getRequestContextPath(); 
                 String appId = AppUtil.getCurrentAppDefinition().getAppId();
                 String appVersion = AppUtil.getCurrentAppDefinition().getVersion().toString();
@@ -102,15 +112,16 @@ public class ThemeSwitch extends UserviewMenu implements PluginWebSupport {
                 Map<String, Object> themeProp = u.getProperties();
                 themeProp = (Map<String, Object>) themeProp.get("theme");
 
-                if (themeProperties != null && themeProperties.get("themeDesktop") == null){
+                if (!u.getPropertyString("userviewId").contains("_mobile")){
                     desktopTheme = themeProp.get("className").toString();
+                    mobileTheme = themeProperties.get("className").toString();
                 }
                 else{
-                    Map<String, Object> themeDesktopProperties = (Map<String, Object>) themeProperties.get("themeDesktop");
-                    desktopTheme = themeDesktopProperties.get("className").toString();
-                }
+                    desktopTheme = themeProperties.get("className").toString();
+                    mobileTheme = themeProp.get("className").toString();
+                }  
 
-                Object[] arguments = {themeProp.get("className").toString(), desktopTheme, themeProperties.get("className"), contextPath, appId, appVersion};
+                Object[] arguments = {themeProp.get("className").toString(), desktopTheme, mobileTheme, contextPath, appId, appVersion};
                 menu += "<script>" + AppUtil.readPluginResource(getClassName(), "/resources/js/themeSwitch.js", arguments, false , MESSAGE_PATH) + "</script>";                
             }
 
@@ -126,14 +137,9 @@ public class ThemeSwitch extends UserviewMenu implements PluginWebSupport {
 
     @Override
     public void webService(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String action = SecurityUtil.validateStringInput(request.getParameter("switch_theme"));
-        String action2 = SecurityUtil.validateStringInput(request.getParameter("revert_theme"));
-
-        if (action != null && !action.isEmpty() || action2 != null && !action2.isEmpty()){
-            // Set the response content type to JSON
-            response.setContentType("application/json");
-            response.setCharacterEncoding("UTF-8");
-            String name = "";
+        String theme = SecurityUtil.validateStringInput(request.getParameter("switch_theme"));
+        String isMobile = request.getParameter("mobileTheme");
+        if(theme != null && !theme.isEmpty() && isMobile != null && !isMobile.isEmpty()){
             ApplicationContext ac = AppUtil.getApplicationContext();
             AppService appService = (AppService) ac.getBean("appService");
             WorkflowManager workflowManager = (WorkflowManager) ac.getBean("workflowManager");
@@ -141,17 +147,24 @@ public class ThemeSwitch extends UserviewMenu implements PluginWebSupport {
             
             UserviewDefinitionDao userviewDefinitionDao = (UserviewDefinitionDao) AppUtil.getApplicationContext().getBean("userviewDefinitionDao");
             UserviewDefinition userview = userviewDefinitionDao.loadById(request.getParameter("uId"), appDef);
+            UserviewService userviewService = (UserviewService) AppUtil.getApplicationContext().getBean("userviewService");
 
-            String json = userview.getJson();
+            UserviewDefinition copy = userviewDefinitionDao.loadById(request.getParameter("uId"), appDef);
+            copy = userviewService.combinedUserviewDefinition(copy, true);
+
+            String json = copy.getJson();
 
             JSONObject userviewObj = new JSONObject(json);
+            JSONObject propertiesObj = userviewObj.getJSONObject("properties");
             JSONObject settingObj = userviewObj.getJSONObject("setting");
-            JSONObject themeObj = settingObj.getJSONObject("properties").getJSONObject("theme");
-            JSONObject propertiesObj = settingObj.getJSONObject("properties");
-            JSONObject themeAltObj = null;
-            JSONArray categories = userviewObj.getJSONArray("categories");
-            
+            JSONObject settingPropertiesObj = settingObj.getJSONObject("properties");
+            Map<String, Object> prop = getProperties();
+            JSONObject themeAltObject = null;
+            JSONObject themeAltPropObject = null;
+
+            //Create mobile App
             // Iterate through categories
+            JSONArray categories = userviewObj.getJSONArray("categories");
             outerLoop:
             for (int i = 0; i < categories.length(); i++) {
                 JSONObject category = categories.getJSONObject(i);
@@ -163,45 +176,51 @@ public class ThemeSwitch extends UserviewMenu implements PluginWebSupport {
                     
                     // Check if the className matches
                     if ("org.marketplace.themeSwitch.ThemeSwitch".equals(menu.getString("className"))) {
-                        themeAltObj = menu.getJSONObject("properties").getJSONObject("themeAlternative");
+                        themeAltPropObject = menu.getJSONObject("properties");
+                        themeAltObject = themeAltPropObject.getJSONObject("themeAlternative");
                         break outerLoop;
                     }
                 }
             }
 
-            // Deep copy the theme object
-            JSONObject themeCopy = new JSONObject(themeObj.toString());
+            //Replace the themeObj to the plugin's
+            if (themeAltObject != null){
+                settingPropertiesObj.put("userviewId", settingPropertiesObj.getString("userviewId")+"_mobile");    
+                propertiesObj.put("id", settingPropertiesObj.getString("userviewId"));
+                propertiesObj.put("hideThisUserviewInAppCenter", "true");
 
-            // Deep copy the themeAlternative object
-            JSONObject themeAltCopy = new JSONObject(themeAltObj.toString());
-
-            //Switch back to desktop theme
-            if (action2 != null && themeAltCopy.has("themeDesktop")){
-                JSONObject themeDesktop = new JSONObject(themeAltCopy.get("themeDesktop").toString());
+                UserviewDefinition uDef = new UserviewDefinition();
+                uDef.setAppDefinition(appDef);
+                uDef.setAppVersion(appDef.getVersion());
                 
-                propertiesObj.put("theme", themeDesktop);
-                settingObj.put("properties", propertiesObj);
+                uDef.setId(settingPropertiesObj.getString("userviewId"));     
+                uDef.setName(settingPropertiesObj.getString("userviewId"));           
+
+                themeAltPropObject.put("themeAlternative", settingPropertiesObj.getJSONObject("theme"));
+                settingPropertiesObj.put("theme", themeAltObject);
+                settingObj.put("properties", settingPropertiesObj);
                 userviewObj.put("setting", settingObj);
-
-                themeAltObj.remove("themeDesktop");
+                userviewObj.put("properties", propertiesObj);
                 
-                userview.setJson(userviewObj.toString());
+                //if does not exit, add
+                if (userviewDefinitionDao.loadById(uDef.getId(), appDef) == null){
+                    uDef.setJson(userviewObj.toString());
+                    userviewDefinitionDao.add(uDef);
+                }else {//If exists, update
+                    uDef.setJson(userviewObj.toString());
+                    userviewDefinitionDao.update(uDef);
+                }
+                response.setContentType("application/json;charset=UTF-8");
+                JSONObject jsonResponse = new JSONObject();
+                jsonResponse.put("json", uDef.getJson());
+                jsonResponse.put("uid", propertiesObj.getString("id"));
+                response.getWriter().write(jsonResponse.toString());
             }
-            //Switch to mobile
-            else if (themeAltObj != null && action != null) {
-                propertiesObj.put("theme", themeAltCopy);
-                themeAltObj.put("themeDesktop", themeCopy);
-
-                settingObj.put("properties", propertiesObj);
-                userviewObj.put("setting", settingObj);
-                
-                userview.setJson(userviewObj.toString());
-            }
-
-            String jsonResponse = "{\"success\": true}";
-
-            // Write the response directly to the output stream
-            response.getWriter().write(jsonResponse);
+        } else if (theme != null && !theme.isEmpty() && isMobile == null){
+            response.setContentType("application/json;charset=UTF-8");
+            JSONObject jsonResponse = new JSONObject();
+            jsonResponse.put("json", "Switch to Desktop");
+            response.getWriter().write(jsonResponse.toString());
         }
     }
 }
