@@ -202,12 +202,13 @@ public class ThemeSwitch extends UserviewMenu implements PluginWebSupport {
                 userviewObj.put("setting", settingObj);
                 userviewObj.put("properties", propertiesObj);
                 
+                String userviewJson = userviewService.saveUserviewPages(userviewObj.toString(), uDef.getId(), appDef);
                 //if does not exit, add
                 if (userviewDefinitionDao.loadById(uDef.getId(), appDef) == null){
-                    uDef.setJson(userviewObj.toString());
+                    uDef.setJson(userviewJson);
                     userviewDefinitionDao.add(uDef);
                 }else {//If exists, update
-                    uDef.setJson(userviewObj.toString());
+                    uDef.setJson(userviewJson);
                     userviewDefinitionDao.update(uDef);
                 }
                 response.setContentType("application/json;charset=UTF-8");
