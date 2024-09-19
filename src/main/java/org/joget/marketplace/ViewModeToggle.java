@@ -96,14 +96,20 @@ public class ViewModeToggle extends UserviewMenu implements PluginWebSupport {
                     AppUtil.readPluginResource(getClassName(), "/resources/css/bootstrap4-toggle.min.css", null, true , MESSAGE_PATH) +     
                     ".toggle-group label.toggle-on{\r\n" + //
                     "        right:50%;\r\n" + //
+                    "        margin: 0px !important;" +
                     "    }\r\n" + //
                     "    .toggle-group label.toggle-off{\r\n" + //
                     "        left:55%;\r\n" + //
+                    "        margin: 0px !important;" +
                     "    }\r\n" + //
                     "    .toggle-group span.toggle-handle{\r\n" + //
-                    "        border-radius:90px;\r\n" + //
+                    "        border-radius:90px !important;\r\n" + //
+                    "        margin: 0px !important;" +
                     "    }\r\n" + //
-                    "    .toggle.ios, .toggle-on.ios, .toggle-off.ios { border-radius: 20px; }" +
+                    "    .toggle-group label i{\r\n" + //
+                    "        padding: 0px !important;" +
+                    "    }\r\n" + //
+                    "    .toggle.ios, .toggle-on.ios, .toggle-off.ios { border-radius: 20px !important; }" +
                     "\n</style>";
             String id = getPropertyString("id");
             menu += "<script>" + AppUtil.readPluginResource(getClassName(), "/resources/js/usageCheck.js", new Object[]{id, isPreview}, false , MESSAGE_PATH) + "</script>";
