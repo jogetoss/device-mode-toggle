@@ -21,7 +21,8 @@
     {
         name: 'themeAlternative',
         label: '@@org.joget.marketplace.viewmodetoggle.theme@@',
-        value: 'org.joget.apps.userview.lib.DefaultTheme',
+        control_field: 'userviewType',
+        control_value: '',
         type: 'elementselect',
         options_ajax: '[CONTEXT_PATH]/web/property/json/getElements?classname=org.joget.apps.userview.model.UserviewTheme',
         url: '[CONTEXT_PATH]/web/property/userview/json[APP_PATH]/getPropertyOptions'
