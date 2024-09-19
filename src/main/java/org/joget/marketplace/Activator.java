@@ -1,4 +1,4 @@
-package org.marketplace.themeSwitch;
+package org.joget.marketplace;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -14,7 +14,7 @@ public class Activator implements BundleActivator {
         registrationList = new ArrayList<ServiceRegistration>();
 
         //Register plugin here
-        registrationList.add(context.registerService(ThemeSwitch.class.getName(), new ThemeSwitch(), null));
+        registrationList.add(context.registerService(ViewModeToggle.class.getName(), new ViewModeToggle(), null));
     }
 
     public void stop(BundleContext context) {

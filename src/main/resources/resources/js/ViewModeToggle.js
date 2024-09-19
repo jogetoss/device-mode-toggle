@@ -1,12 +1,13 @@
 $(document).ready(function () {
+    var menuId = "%s";
     var currentTheme = "%s"
     var desktopTheme = "%s";
     var mobileTheme = "%s";
     var contextPath = "%s";
     var appId = "%s";
     var appVersion = "%s";
-    var desktopMessage = "@@org.marketplace.ThemeSwitch.desktopToast@@";
-    var mobileMessage = "@@org.marketplace.ThemeSwitch.mobileToast@@";
+    var desktopMessage = "@@org.joget.marketplace.viewmodetoggle.desktopToast@@";
+    var mobileMessage = "@@org.joget.marketplace.viewmodetoggle.mobileToast@@";
 
     $("#themeToggle").siblings(".toggle-group").click(function (e) {
         var toggle = $("#themeToggle").prop("checked");
@@ -26,12 +27,7 @@ $(document).ready(function () {
     });
 
     function toggleThemeSwitch(theme) {
-        var mobile="";
-        if (theme === mobileTheme){
-            mobile = "&mobileTheme=true";
-        }
         if (theme === mobileTheme && currentTheme !== mobileTheme){
-            
             if (currentTheme === "org.joget.marketplace.OnsenMobileTheme"){
                 $("<div id='themeSwitchToast' style='visibility:hidden;opacity:0;z-index:1000;width:fit-content;min-width: 150px;height: 50px;position:absolute;top:10%%;left:50%%;transform:translate(-50%%, -50%%);background-color: #698a3a;color: #FFFFFF;display: flex;align-items: center;justify-content: center;border-radius: 2px;padding: 16px;text-align: center;'>" + mobileMessage + "</div>").appendTo("ons-splitter-content .page__content").css('visibility', 'visible').animate({opacity: 1}, 1000);
             }else{
@@ -43,7 +39,7 @@ $(document).ready(function () {
             }, 2000);
 
             $.ajax({
-                url: contextPath + "/web/json/plugin/org.marketplace.themeSwitch.ThemeSwitch/service?switch_theme=" + theme + "&appId=" + appId + "&appVersion=" + appVersion + "&uId=" + UI.userview_id+"&menuId="+window.location.href.split('/').pop()+mobile,
+                url: contextPath + "/web/json/plugin/org.joget.marketplace.ViewModeToggle/service?switch_theme=" + theme + "&appId=" + appId + "&appVersion=" + appVersion + "&mobileTheme=true" + "&uId=" + UI.userview_id+"&menuId="+window.location.href.split('/').pop(),
                 success: function (data) {
                     // Get the current URL
                     var currentUrl = window.location.href;
@@ -58,6 +54,7 @@ $(document).ready(function () {
                 }
             });
         }else if(theme === desktopTheme && currentTheme === mobileTheme){
+            console.log("TEST 2")
             // Get the current URL
             var currentUrl = window.location.href;
     
@@ -88,6 +85,19 @@ $(document).ready(function () {
     if (isMobile && !UI.userview_id.includes("_mobile")){
         if (localStorage.getItem("themeChangedManually") === null){
             toggleThemeSwitch(mobileTheme);
+        }
+    }else if (!isMobile){
+        $("li#"+menuId).hide();
+        console.log($("li#"+menuId))
+        var visibleChildren = $("li#"+menuId).closest("ul.menu-container").children().filter(function() {
+            var containsThemeToggle = $(this).find("input#themeToggle").length > 0;
+            return containsThemeToggle;
+        });
+
+        var allChildrenHidden = visibleChildren.length === $("li#"+menuId).closest("ul.menu-container").children().length;
+        console.log(visibleChildren);
+        if (allChildrenHidden){
+            $("li#"+menuId).closest("li.category").hide();
         }
     }
 

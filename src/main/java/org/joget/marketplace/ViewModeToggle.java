@@ -1,4 +1,4 @@
-package org.marketplace.themeSwitch;
+package org.joget.marketplace;
 
 import java.io.IOException;
 import org.joget.apps.app.dao.UserviewDefinitionDao;
@@ -32,12 +32,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.ResourceBundle;
 
-public class ThemeSwitch extends UserviewMenu implements PluginWebSupport {
-    private final static String MESSAGE_PATH = "messages/ThemeSwitch";
+public class ViewModeToggle extends UserviewMenu implements PluginWebSupport {
+    private final static String MESSAGE_PATH = "messages/ViewModeToggle";
     private String themeAltProperties = "";
 
     public String getName() {
-        return "Theme Switcher";
+        return "View Mode Toggler";
     }
     public String getVersion() {
         return "8.0.0";
@@ -49,16 +49,16 @@ public class ThemeSwitch extends UserviewMenu implements PluginWebSupport {
      
     public String getLabel() {
         //support i18n
-        return AppPluginUtil.getMessage("org.marketplace.ThemeSwitch.pluginLabel", getClassName(), MESSAGE_PATH);
+        return AppPluginUtil.getMessage("org.joget.marketplace.viewmodetoggle.pluginLabel", getClassName(), MESSAGE_PATH);
     }
      
     public String getDescription() {
         //support i18n
-        return AppPluginUtil.getMessage("org.marketplace.ThemeSwitch.pluginDesc", getClassName(), MESSAGE_PATH);
+        return AppPluginUtil.getMessage("org.joget.marketplace.viewmodetoggle.pluginDesc", getClassName(), MESSAGE_PATH);
     }
   
     public String getPropertyOptions() {
-        return AppUtil.readPluginResource(getClassName(), "/properties/themeSwitch.json", null, true, MESSAGE_PATH);
+        return AppUtil.readPluginResource(getClassName(), "/properties/ViewModeToggle.json", null, true, MESSAGE_PATH);
     }
     @Override
     public String getCategory() {
@@ -94,6 +94,16 @@ public class ThemeSwitch extends UserviewMenu implements PluginWebSupport {
             menu += "<script>" + AppUtil.readPluginResource(getClassName(), "/resources/js/bootstrap4-toggle.min.js", null, false , MESSAGE_PATH) + "</script>";
             menu += "<style>\n" + 
                     AppUtil.readPluginResource(getClassName(), "/resources/css/bootstrap4-toggle.min.css", null, true , MESSAGE_PATH) +     
+                    ".toggle-group label.toggle-on{\r\n" + //
+                    "        right:50%;\r\n" + //
+                    "    }\r\n" + //
+                    "    .toggle-group label.toggle-off{\r\n" + //
+                    "        left:55%;\r\n" + //
+                    "    }\r\n" + //
+                    "    .toggle-group span.toggle-handle{\r\n" + //
+                    "        border-radius:90px;\r\n" + //
+                    "    }\r\n" + //
+                    "    .toggle.ios, .toggle-on.ios, .toggle-off.ios { border-radius: 20px; }" +
                     "\n</style>";
             String id = getPropertyString("id");
             menu += "<script>" + AppUtil.readPluginResource(getClassName(), "/resources/js/usageCheck.js", new Object[]{id, isPreview}, false , MESSAGE_PATH) + "</script>";
@@ -121,8 +131,8 @@ public class ThemeSwitch extends UserviewMenu implements PluginWebSupport {
                     mobileTheme = themeProp.get("className").toString();
                 }  
 
-                Object[] arguments = {themeProp.get("className").toString(), desktopTheme, mobileTheme, contextPath, appId, appVersion};
-                menu += "<script>" + AppUtil.readPluginResource(getClassName(), "/resources/js/themeSwitch.js", arguments, false , MESSAGE_PATH) + "</script>";                
+                Object[] arguments = {id, themeProp.get("className").toString(), desktopTheme, mobileTheme, contextPath, appId, appVersion};
+                menu += "<script>" + AppUtil.readPluginResource(getClassName(), "/resources/js/ViewModeToggle.js", arguments, false , MESSAGE_PATH) + "</script>";                
             }
 
             return menu;
@@ -175,7 +185,7 @@ public class ThemeSwitch extends UserviewMenu implements PluginWebSupport {
                     JSONObject menu = menus.getJSONObject(j);
                     
                     // Check if the className matches
-                    if ("org.marketplace.themeSwitch.ThemeSwitch".equals(menu.getString("className"))) {
+                    if ("org.joget.marketplace.ViewModeToggle".equals(menu.getString("className"))) {
                         themeAltPropObject = menu.getJSONObject("properties");
                         themeAltObject = themeAltPropObject.getJSONObject("themeAlternative");
                         break outerLoop;
@@ -217,11 +227,6 @@ public class ThemeSwitch extends UserviewMenu implements PluginWebSupport {
                 jsonResponse.put("uid", propertiesObj.getString("id"));
                 response.getWriter().write(jsonResponse.toString());
             }
-        } else if (theme != null && !theme.isEmpty() && isMobile == null){
-            response.setContentType("application/json;charset=UTF-8");
-            JSONObject jsonResponse = new JSONObject();
-            jsonResponse.put("json", "Switch to Desktop");
-            response.getWriter().write(jsonResponse.toString());
         }
     }
 }

@@ -10,6 +10,12 @@ $(document).ready(function(){
     //Only in preview, update the themeTogglers
     //Only the first themeTogglers should be available to be used
     if (%b){
+        console.log(themeToggles);
+        console.log(themeToggles.eq(1).find("input#themeToggle:visible").length);
+        if (themeToggles.eq(1).find("div.toggle:visible").length){
+            themeToggles.eq(1).find("div.toggle").hide();
+        }
+
         liSelector.on("mousedown", function(e, data){
             isDragging = true;
             $(document).on('mouseup.themeMenuDrag', onMouseUp);
@@ -21,7 +27,7 @@ $(document).ready(function(){
             isDragging = false;
             $(document).off('mouseup.themeMenuDrag', onMouseUp);
 
-            // Handle drop logic here
+            // Handle drop logic
             if (liSelector.length && themeToggles.length && liSelector.find("input#themeToggle").css('display') === 'none' && liSelector[0] === themeToggles.first()[0]){
                 liSelector.find('div.toggle').prev('span').css({"padding-right": "10px"});
                 liSelector.find("div.toggle").show();
@@ -40,5 +46,16 @@ $(document).ready(function(){
                 themeToggles.eq(0).find("div.toggle").show();
             }
         }
+
+        //Restore the toggle button to the first menu, if the previous first one is removed
+        $(parent.document).find('#iframe-wrapper .element-actions a.delete-btn').off('click.updateTogglers')
+        .on('click.updateTogglers', function() {
+            themeToggles = $("li.menu").has("input#themeToggle");
+    
+            if (themeToggles.length && themeToggles.eq(0).find('div.toggle').is(":hidden")) {
+                themeToggles.eq(0).find('div.toggle').prev('span').css({"padding-right": "10px"});
+                themeToggles.eq(0).find("div.toggle").show();
+            }
+        });
     }
 })
