@@ -1,0 +1,4 @@
+body.rtl #sidebar li.menu a.menu-link div.toggle.btn.btn-xs {
+    float: right;
+    right: 10px;
+}
