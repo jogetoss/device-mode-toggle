@@ -10,8 +10,6 @@ $(document).ready(function(){
     //Only in preview, update the themeTogglers
     //Only the first themeTogglers should be available to be used
     if (%b){
-        console.log(themeToggles);
-        console.log(themeToggles.eq(1).find("input#themeToggle:visible").length);
         if (themeToggles.eq(1).find("div.toggle:visible").length){
             themeToggles.eq(1).find("div.toggle").hide();
         }
