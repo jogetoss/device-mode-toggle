@@ -8,6 +8,7 @@ $(document).ready(function () {
     var appVersion = "%s";
     var desktopMessage = "@@org.joget.marketplace.viewmodetoggle.desktopToast@@";
     var mobileMessage = "@@org.joget.marketplace.viewmodetoggle.mobileToast@@";
+    var errorMessage = "@@org.joget.marketplace.viewmodetoggle.errorMessage@@";
 
     $("#themeToggle").siblings(".toggle-group").click(function (e) {
         var toggle = $("#themeToggle").prop("checked");
@@ -27,11 +28,11 @@ $(document).ready(function () {
     });
 
     function toggleThemeSwitch(theme) {
-        if (theme === mobileTheme && currentTheme !== mobileTheme){
+        if (theme === mobileTheme && (currentTheme !== mobileTheme || (mobileTheme === desktopTheme && !UI.userview_id.includes("_mobile")) )){
             if (currentTheme === "org.joget.marketplace.OnsenMobileTheme"){
-                $("<div id='themeSwitchToast' style='visibility:hidden;opacity:0;z-index:1000;width:fit-content;min-width: 150px;height: 50px;position:absolute;top:10%%;left:50%%;transform:translate(-50%%, -50%%);background-color: #698a3a;color: #FFFFFF;display: flex;align-items: center;justify-content: center;border-radius: 2px;padding: 16px;text-align: center;'>" + mobileMessage + "</div>").appendTo("ons-splitter-content .page__content").css('visibility', 'visible').animate({opacity: 1}, 1000);
+                $("<div id='themeSwitchToast' style='visibility:hidden;opacity:0;z-index:1000;width:fit-content;min-width: 150px;height: 50px;position:fixed;top:10%%;left:50%%;transform:translate(-50%%, -50%%);background-color: #698a3a;color: #FFFFFF;display: flex;align-items: center;justify-content: center;border-radius: 2px;padding: 16px;text-align: center;'>" + mobileMessage + "</div>").appendTo("ons-splitter-content .page__content").css('visibility', 'visible').animate({opacity: 1}, 1000);
             }else{
-                $("<div id='themeSwitchToast' style='visibility:hidden;opacity:0;z-index:1000;width:fit-content;min-width: 150px;height: 50px;position:absolute;top:10%%;left:50%%;transform:translate(-50%%, -50%%);background-color: #698a3a;color: #FFFFFF;display: flex;align-items: center;justify-content: center;border-radius: 2px;padding: 16px;text-align: center;'>" + mobileMessage + "</div>").appendTo("body").css('visibility', 'visible').animate({opacity: 1}, 1000);
+                $("<div id='themeSwitchToast' style='visibility:hidden;opacity:0;z-index:1000;width:fit-content;min-width: 150px;height: 50px;position:fixed;top:10%%;left:50%%;transform:translate(-50%%, -50%%);background-color: #698a3a;color: #FFFFFF;display: flex;align-items: center;justify-content: center;border-radius: 2px;padding: 16px;text-align: center;'>" + mobileMessage + "</div>").appendTo("body").css('visibility', 'visible').animate({opacity: 1}, 1000);
             }
 
             setTimeout(function(){
@@ -40,7 +41,7 @@ $(document).ready(function () {
 
             $.ajax({
                 url: contextPath + "/web/json/plugin/org.joget.marketplace.ViewModeToggle/service?switch_theme=" + theme + "&appId=" + appId + "&appVersion=" + appVersion + "&mobileTheme=true" + "&uId=" + UI.userview_id+"&menuId="+window.location.href.split('/').pop(),
-                success: function (data) {
+                success: function(data) {
                     // Get the current URL
                     var currentUrl = window.location.href;
     
@@ -51,10 +52,24 @@ $(document).ready(function () {
                     var newUrl = currentUrl.replace(regex, appId + "/" + data["uid"]);
     
                     window.location.href = newUrl
+                },
+                error: function(data){
+                    if (localStorage.getItem("themeChangedManually") === null){
+                        toggleThemeSwitch(mobileTheme);
+                    }
+
+                    if (currentTheme === "org.joget.marketplace.OnsenMobileTheme"){
+                        $("<div id='themeSwitchToast' style='visibility:hidden;opacity:0;z-index:1000;width:fit-content;min-width: 150px;height: 50px;position:fixed;top:10%%;left:50%%;transform:translate(-50%%, -50%%);background-color: #698a3a;color: #FFFFFF;display: flex;align-items: center;justify-content: center;border-radius: 2px;padding: 16px;text-align: center;'>" + errorMessage + "</div>").appendTo("ons-splitter-content .page__content").css('visibility', 'visible').animate({opacity: 1}, 1000);
+                    }else{
+                        $("<div id='themeSwitchToast' style='visibility:hidden;opacity:0;z-index:1000;width:fit-content;min-width: 150px;height: 50px;position:fixed;top:10%%;left:50%%;transform:translate(-50%%, -50%%);background-color: #698a3a;color: #FFFFFF;display: flex;align-items: center;justify-content: center;border-radius: 2px;padding: 16px;text-align: center;'>" + errorMessage + "</div>").appendTo("body").css('visibility', 'visible').animate({opacity: 1}, 1000);
+                    }
+        
+                    setTimeout(function(){
+                        $("#themeSwitchToast").remove();
+                    }, 2000);
                 }
             });
         }else if(theme === desktopTheme && currentTheme === mobileTheme){
-            console.log("TEST 2")
             // Get the current URL
             var currentUrl = window.location.href;
     
@@ -65,9 +80,9 @@ $(document).ready(function () {
             var newUrl = currentUrl.replace(regex, appId + "/" + UI.userview_id.replace("_mobile", ""));
             
             if (currentTheme === "org.joget.marketplace.OnsenMobileTheme"){
-                $("<div id='themeSwitchToast' style='visibility:hidden;opacity:0;z-index:1000;width:fit-content;min-width: 150px;height: 50px;position:absolute;top:10%%;left:50%%;transform:translate(-50%%, -50%%);background-color: #698a3a;color: #FFFFFF;display: flex;align-items: center;justify-content: center;border-radius: 2px;padding: 16px;text-align: center;'>" + desktopMessage + "</div>").appendTo("ons-splitter-content .page__content").css('visibility', 'visible').animate({opacity: 1}, 1000);
+                $("<div id='themeSwitchToast' style='visibility:hidden;opacity:0;z-index:1000;width:fit-content;min-width: 150px;height: 50px;position:fixed;top:10%%;left:50%%;transform:translate(-50%%, -50%%);background-color: #698a3a;color: #FFFFFF;display: flex;align-items: center;justify-content: center;border-radius: 2px;padding: 16px;text-align: center;'>" + desktopMessage + "</div>").appendTo("ons-splitter-content .page__content").css('visibility', 'visible').animate({opacity: 1}, 1000);
             }else{
-                $("<div id='themeSwitchToast' style='visibility:hidden;opacity:0;z-index:1000;width:fit-content;min-width: 150px;height: 50px;position:absolute;top:10%%;left:50%%;transform:translate(-50%%, -50%%);background-color: #698a3a;color: #FFFFFF;display: flex;align-items: center;justify-content: center;border-radius: 2px;padding: 16px;text-align: center;'>" + desktopMessage + "</div>").appendTo("body").css('visibility', 'visible').animate({opacity: 1}, 1000);
+                $("<div id='themeSwitchToast' style='visibility:hidden;opacity:0;z-index:1000;width:fit-content;min-width: 150px;height: 50px;position:fixed;top:10%%;left:50%%;transform:translate(-50%%, -50%%);background-color: #698a3a;color: #FFFFFF;display: flex;align-items: center;justify-content: center;border-radius: 2px;padding: 16px;text-align: center;'>" + desktopMessage + "</div>").appendTo("body").css('visibility', 'visible').animate({opacity: 1}, 1000);
             }
 
             setTimeout(function(){
@@ -88,14 +103,13 @@ $(document).ready(function () {
         }
     }else if (!isMobile){
         $("li#"+menuId).hide();
-        console.log($("li#"+menuId))
         var visibleChildren = $("li#"+menuId).closest("ul.menu-container").children().filter(function() {
             var containsThemeToggle = $(this).find("input#themeToggle").length > 0;
             return containsThemeToggle;
         });
 
         var allChildrenHidden = visibleChildren.length === $("li#"+menuId).closest("ul.menu-container").children().length;
-        console.log(visibleChildren);
+
         if (allChildrenHidden){
             $("li#"+menuId).closest("li.category").hide();
         }
