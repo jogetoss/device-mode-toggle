@@ -93,6 +93,7 @@ public class ViewModeToggle extends UserviewMenu implements PluginWebSupport {
                     "</a>\n";
             menu += "<script>" + AppUtil.readPluginResource(getClassName(), "/resources/js/bootstrap4-toggle.min.js", null, false , MESSAGE_PATH) + "</script>";
             menu += "<style>\n" + 
+                    AppUtil.readPluginResource(getClassName(), "/resources/css/rtl_style.css", null, true , MESSAGE_PATH) +     
                     AppUtil.readPluginResource(getClassName(), "/resources/css/bootstrap4-toggle.min.css", null, true , MESSAGE_PATH) +     
                     ".toggle-group label.toggle-on{\r\n" + //
                     "        right:50%;\r\n" + //
@@ -110,9 +111,9 @@ public class ViewModeToggle extends UserviewMenu implements PluginWebSupport {
                     "        padding: 0px !important;" +
                     "    }\r\n" + //
                     "    .toggle.ios, .toggle-on.ios, .toggle-off.ios { border-radius: 20px !important; }" +
-                    "\n</style>";
+                    "\n</style>\n";
             String id = getPropertyString("id");
-            menu += "<script>" + AppUtil.readPluginResource(getClassName(), "/resources/js/usageCheck.js", new Object[]{id, isPreview}, false , MESSAGE_PATH) + "</script>";
+            menu += "<script>" + AppUtil.readPluginResource(getClassName(), "/resources/js/usageCheck.js", new Object[]{id, isPreview}, false , MESSAGE_PATH) + "</script>\n";
 
             //Add the Script and Stylesheet
             if (!isPreview){
