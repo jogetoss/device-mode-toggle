@@ -59,9 +59,9 @@ $(document).ready(function () {
                     }
 
                     if (currentTheme === "org.joget.marketplace.OnsenMobileTheme"){
-                        $("<div id='themeSwitchToast' style='visibility:hidden;opacity:0;z-index:1000;width:fit-content;min-width: 150px;height: 50px;position:fixed;top:10%%;left:50%%;transform:translate(-50%%, -50%%);background-color: #698a3a;color: #FFFFFF;display: flex;align-items: center;justify-content: center;border-radius: 2px;padding: 16px;text-align: center;'>" + errorMessage + "</div>").appendTo("ons-splitter-content .page__content").css('visibility', 'visible').animate({opacity: 1}, 1000);
+                        $("<div id='themeSwitchToast' style='visibility:hidden;opacity:0;z-index:1000;width:fit-content;min-width: 150px;height: 50px;position:fixed;top:10%%;left:50%%;transform:translate(-50%%, -50%%);background-color: #740112;color: #FFFFFF;display: flex;align-items: center;justify-content: center;border-radius: 2px;padding: 16px;text-align: center;'>" + errorMessage + "</div>").appendTo("ons-splitter-content .page__content").css('visibility', 'visible').animate({opacity: 1}, 1000);
                     }else{
-                        $("<div id='themeSwitchToast' style='visibility:hidden;opacity:0;z-index:1000;width:fit-content;min-width: 150px;height: 50px;position:fixed;top:10%%;left:50%%;transform:translate(-50%%, -50%%);background-color: #698a3a;color: #FFFFFF;display: flex;align-items: center;justify-content: center;border-radius: 2px;padding: 16px;text-align: center;'>" + errorMessage + "</div>").appendTo("body").css('visibility', 'visible').animate({opacity: 1}, 1000);
+                        $("<div id='themeSwitchToast' style='visibility:hidden;opacity:0;z-index:1000;width:fit-content;min-width: 150px;height: 50px;position:fixed;top:10%%;left:50%%;transform:translate(-50%%, -50%%);background-color: #740112;color: #FFFFFF;display: flex;align-items: center;justify-content: center;border-radius: 2px;padding: 16px;text-align: center;'>" + errorMessage + "</div>").appendTo("body").css('visibility', 'visible').animate({opacity: 1}, 1000);
                     }
         
                     setTimeout(function(){
