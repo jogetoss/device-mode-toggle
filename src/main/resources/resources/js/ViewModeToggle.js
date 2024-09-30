@@ -1,6 +1,6 @@
 $(document).ready(function () {
     var menuId = "%s";
-    var currentTheme = "%s"
+    var currentTheme = "%s";
     var desktopTheme = "%s";
     var mobileTheme = "%s";
     var contextPath = "%s";
@@ -12,6 +12,7 @@ $(document).ready(function () {
 
     $("#themeToggle").siblings(".toggle-group").click(function (e) {
         var toggle = $("#themeToggle").prop("checked");
+        
         if (isMobile){
             if (localStorage.getItem("themeChangedManually") === 'true'){
                 localStorage.removeItem("themeChangedManually");
@@ -19,20 +20,21 @@ $(document).ready(function () {
                 localStorage.setItem("themeChangedManually", "true");
             }
         }
+        
         if (toggle){
             toggleThemeSwitch(mobileTheme); 
         }
         else{
-            toggleThemeSwitch(desktopTheme)
+            toggleThemeSwitch(desktopTheme);
         }
     });
 
     function toggleThemeSwitch(theme) {
         if (theme === mobileTheme && (currentTheme !== mobileTheme || (mobileTheme === desktopTheme && !UI.userview_id.includes("_mobile")) )){
             if (currentTheme === "org.joget.marketplace.OnsenMobileTheme"){
-                $("<div id='themeSwitchToast' style='visibility:hidden;opacity:0;z-index:1000;width:fit-content;min-width: 150px;height: 50px;position:fixed;top:10%%;left:50%%;transform:translate(-50%%, -50%%);background-color: #698a3a;color: #FFFFFF;display: flex;align-items: center;justify-content: center;border-radius: 2px;padding: 16px;text-align: center;'>" + mobileMessage + "</div>").appendTo("ons-splitter-content .page__content").css('visibility', 'visible').animate({opacity: 1}, 1000);
+                $("<div id='themeSwitchToast' style='visibility:hidden;opacity:0;z-index:1000;width:fit-content;min-width: 150px;box-sizing: border-box;height: 50px;position:fixed;top:10%%;left:50%%;transform:translate(-50%%, -50%%);background-color: #698a3a;color: #FFFFFF;display: flex;align-items: center;justify-content: center;border-radius: 2px;padding: 16px;text-align: center;'>" + mobileMessage + "</div>").appendTo("ons-splitter-content .page__content").css('visibility', 'visible').animate({opacity: 1}, 1000);
             }else{
-                $("<div id='themeSwitchToast' style='visibility:hidden;opacity:0;z-index:1000;width:fit-content;min-width: 150px;height: 50px;position:fixed;top:10%%;left:50%%;transform:translate(-50%%, -50%%);background-color: #698a3a;color: #FFFFFF;display: flex;align-items: center;justify-content: center;border-radius: 2px;padding: 16px;text-align: center;'>" + mobileMessage + "</div>").appendTo("body").css('visibility', 'visible').animate({opacity: 1}, 1000);
+                $("<div id='themeSwitchToast' style='visibility:hidden;opacity:0;z-index:1000;width:fit-content;min-width: 150px;box-sizing: border-box;height: 50px;position:fixed;top:10%%;left:50%%;transform:translate(-50%%, -50%%);background-color: #698a3a;color: #FFFFFF;display: flex;align-items: center;justify-content: center;border-radius: 2px;padding: 16px;text-align: center;'>" + mobileMessage + "</div>").appendTo("body").css('visibility', 'visible').animate({opacity: 1}, 1000);
             }
 
             setTimeout(function(){
@@ -51,7 +53,7 @@ $(document).ready(function () {
                     // Replace the matched part with the updated appId and userviewId
                     var newUrl = currentUrl.replace(regex, appId + "/" + data["uid"]);
     
-                    window.location.href = newUrl
+                    window.location.href = newUrl;
                 },
                 error: function(data){
                     if (localStorage.getItem("themeChangedManually") === null){
@@ -59,9 +61,9 @@ $(document).ready(function () {
                     }
 
                     if (currentTheme === "org.joget.marketplace.OnsenMobileTheme"){
-                        $("<div id='themeSwitchToast' style='visibility:hidden;opacity:0;z-index:1000;width:fit-content;min-width: 150px;height: 50px;position:fixed;top:10%%;left:50%%;transform:translate(-50%%, -50%%);background-color: #740112;color: #FFFFFF;display: flex;align-items: center;justify-content: center;border-radius: 2px;padding: 16px;text-align: center;'>" + errorMessage + "</div>").appendTo("ons-splitter-content .page__content").css('visibility', 'visible').animate({opacity: 1}, 1000);
+                        $("<div id='themeSwitchToast' style='visibility:hidden;opacity:0;z-index:1000;width:fit-content;min-width: 150px;box-sizing: border-box;height: 50px;position:fixed;top:15%%;left:50%%;transform:translate(-50%%, -50%%);background-color: #740112;color: #FFFFFF;display: flex;align-items: center;justify-content: center;border-radius: 2px;padding: 16px;text-align: center;'>" + errorMessage + "</div>").appendTo("ons-splitter-content .page__content").css('visibility', 'visible').animate({opacity: 1}, 1000);
                     }else{
-                        $("<div id='themeSwitchToast' style='visibility:hidden;opacity:0;z-index:1000;width:fit-content;min-width: 150px;height: 50px;position:fixed;top:10%%;left:50%%;transform:translate(-50%%, -50%%);background-color: #740112;color: #FFFFFF;display: flex;align-items: center;justify-content: center;border-radius: 2px;padding: 16px;text-align: center;'>" + errorMessage + "</div>").appendTo("body").css('visibility', 'visible').animate({opacity: 1}, 1000);
+                        $("<div id='themeSwitchToast' style='visibility:hidden;opacity:0;z-index:1000;width:fit-content;min-width: 150px;box-sizing: border-box;height: 50px;position:fixed;top:10%%;left:50%%;transform:translate(-50%%, -50%%);background-color: #740112;color: #FFFFFF;display: flex;align-items: center;justify-content: center;border-radius: 2px;padding: 16px;text-align: center;'>" + errorMessage + "</div>").appendTo("body").css('visibility', 'visible').animate({opacity: 1}, 1000);
                     }
         
                     setTimeout(function(){
@@ -80,9 +82,9 @@ $(document).ready(function () {
             var newUrl = currentUrl.replace(regex, appId + "/" + UI.userview_id.replace("_mobile", ""));
             
             if (currentTheme === "org.joget.marketplace.OnsenMobileTheme"){
-                $("<div id='themeSwitchToast' style='visibility:hidden;opacity:0;z-index:1000;width:fit-content;min-width: 150px;height: 50px;position:fixed;top:10%%;left:50%%;transform:translate(-50%%, -50%%);background-color: #698a3a;color: #FFFFFF;display: flex;align-items: center;justify-content: center;border-radius: 2px;padding: 16px;text-align: center;'>" + desktopMessage + "</div>").appendTo("ons-splitter-content .page__content").css('visibility', 'visible').animate({opacity: 1}, 1000);
+                $("<div id='themeSwitchToast' style='visibility:hidden;opacity:0;z-index:1000;width:fit-content;min-width: 150px;box-sizing: border-box;height: 50px;position:fixed;top:15%%;left:50%%;transform:translate(-50%%, -50%%);background-color: #698a3a;color: #FFFFFF;display: flex;align-items: center;justify-content: center;border-radius: 2px;padding: 16px;text-align: center;'>" + desktopMessage + "</div>").appendTo("ons-splitter-content .page__content").css('visibility', 'visible').animate({opacity: 1}, 1000);
             }else{
-                $("<div id='themeSwitchToast' style='visibility:hidden;opacity:0;z-index:1000;width:fit-content;min-width: 150px;height: 50px;position:fixed;top:10%%;left:50%%;transform:translate(-50%%, -50%%);background-color: #698a3a;color: #FFFFFF;display: flex;align-items: center;justify-content: center;border-radius: 2px;padding: 16px;text-align: center;'>" + desktopMessage + "</div>").appendTo("body").css('visibility', 'visible').animate({opacity: 1}, 1000);
+                $("<div id='themeSwitchToast' style='visibility:hidden;opacity:0;z-index:1000;width:fit-content;min-width: 150px;box-sizing: border-box;height: 50px;position:fixed;top:10%%;left:50%%;transform:translate(-50%%, -50%%);background-color: #698a3a;color: #FFFFFF;display: flex;align-items: center;justify-content: center;border-radius: 2px;padding: 16px;text-align: center;'>" + desktopMessage + "</div>").appendTo("body").css('visibility', 'visible').animate({opacity: 1}, 1000);
             }
 
             setTimeout(function(){
@@ -90,19 +92,21 @@ $(document).ready(function () {
             }, 2000);
 
             setTimeout(function(){
-                window.location.href = newUrl
+                window.location.href = newUrl;
             }, 3000);
         }
     }
     
     //Check if mobile or not, if it is, switch to mobile theme
     var isMobile = window.matchMedia("only screen and (max-width: 480px)").matches;
+    
     if (isMobile && !UI.userview_id.includes("_mobile")){
         if (localStorage.getItem("themeChangedManually") === null){
             toggleThemeSwitch(mobileTheme);
         }
     }else if (!isMobile){
         $("li#"+menuId).hide();
+        
         var visibleChildren = $("li#"+menuId).closest("ul.menu-container").children().filter(function() {
             var containsThemeToggle = $(this).find("input#themeToggle").length > 0;
             return containsThemeToggle;
@@ -129,5 +133,5 @@ $(document).ready(function () {
     if(UI.userview_id.includes("_mobile")){
         $("#themeToggle").bootstrapToggle("off");
     }
-})
+});
 
