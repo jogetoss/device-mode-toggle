@@ -7,56 +7,50 @@ import org.joget.apps.app.model.UserviewDefinition;
 import org.joget.apps.app.service.AppPluginUtil;
 import org.joget.apps.app.service.AppService;
 import org.joget.apps.app.service.AppUtil;
-import org.joget.apps.userview.model.Userview;
-import org.joget.apps.userview.model.UserviewCategory;
 import org.joget.apps.userview.model.UserviewMenu;
 import org.joget.apps.userview.model.UserviewSetting;
 import org.joget.apps.userview.service.UserviewService;
-import org.joget.apps.userview.service.UserviewThemeProcesser;
-import org.joget.apps.userview.service.UserviewUtil;
-import org.joget.commons.util.ResourceBundleUtil;
 import org.joget.commons.util.SecurityUtil;
 import org.joget.commons.util.StringUtil;
 import org.joget.plugin.base.PluginWebSupport;
-import org.joget.workflow.model.service.WorkflowManager;
-
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import org.json.JSONObject;
 import org.json.JSONArray;
 import org.springframework.context.ApplicationContext;
-
-import java.util.HashMap;
 import java.util.Map;
-import java.util.ResourceBundle;
 
 public class ViewModeToggle extends UserviewMenu implements PluginWebSupport {
     private final static String MESSAGE_PATH = "messages/ViewModeToggle";
-    private String themeAltProperties = "";
 
+    @Override
     public String getName() {
         return "View Mode Toggler";
     }
+    @Override
     public String getVersion() {
         return "8.0.0";
     }
      
+    @Override
     public String getClassName() {
         return getClass().getName();
     }
      
+    @Override
     public String getLabel() {
         //support i18n
         return AppPluginUtil.getMessage("org.joget.marketplace.viewmodetoggle.pluginLabel", getClassName(), MESSAGE_PATH);
     }
      
+    @Override
     public String getDescription() {
         //support i18n
         return AppPluginUtil.getMessage("org.joget.marketplace.viewmodetoggle.pluginDesc", getClassName(), MESSAGE_PATH);
     }
   
+    @Override
     public String getPropertyOptions() {
         return AppUtil.readPluginResource(getClassName(), "/properties/ViewModeToggle.json", null, true, MESSAGE_PATH);
     }
@@ -82,7 +76,7 @@ public class ViewModeToggle extends UserviewMenu implements PluginWebSupport {
         if (getPropertyString("themeAlternative") != null && !getPropertyString("themeAlternative").isEmpty())
         {
             boolean isPreview = "true".equals(getRequestParameter("isPreview"));
-            themeAltProperties = this.getPropertyString("themeAlternative");
+            this.getPropertyString("themeAlternative");
             String label = this.getPropertyString("label");
             if (label != null) {
                 label = StringUtil.stripHtmlRelaxed(label);
@@ -159,11 +153,9 @@ public class ViewModeToggle extends UserviewMenu implements PluginWebSupport {
         if(theme != null && !theme.isEmpty() && isMobile != null && !isMobile.isEmpty()){
             ApplicationContext ac = AppUtil.getApplicationContext();
             AppService appService = (AppService) ac.getBean("appService");
-            WorkflowManager workflowManager = (WorkflowManager) ac.getBean("workflowManager");
             AppDefinition appDef = appService.getAppDefinition(request.getParameter("appId"), request.getParameter("appVersion"));
             
             UserviewDefinitionDao userviewDefinitionDao = (UserviewDefinitionDao) AppUtil.getApplicationContext().getBean("userviewDefinitionDao");
-            UserviewDefinition userview = userviewDefinitionDao.loadById(request.getParameter("uId"), appDef);
             UserviewService userviewService = (UserviewService) AppUtil.getApplicationContext().getBean("userviewService");
 
             UserviewDefinition copy = userviewDefinitionDao.loadById(request.getParameter("uId"), appDef);
@@ -175,7 +167,6 @@ public class ViewModeToggle extends UserviewMenu implements PluginWebSupport {
             JSONObject propertiesObj = userviewObj.getJSONObject("properties");
             JSONObject settingObj = userviewObj.getJSONObject("setting");
             JSONObject settingPropertiesObj = settingObj.getJSONObject("properties");
-            Map<String, Object> prop = getProperties();
             JSONObject themeAltObject = null;
             JSONObject themeAltPropObject = null;
 
