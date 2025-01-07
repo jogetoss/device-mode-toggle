@@ -49,7 +49,14 @@ $(document).ready(function () {
     
                     // Regular expression to match the appId/userviewId pattern
                     var regex = new RegExp(appId + "/" +UI.userview_id);
-    
+
+                    if (currentTheme === "org.joget.plugin.enterprise.XadminTheme") {
+                        if ($("ul.layui-tab-title").children().length > 0) {
+                            var tabId = $("ul.layui-tab-title > li.layui-this").attr("lay-id");
+                            currentUrl = window.location.origin + $("div.layui-tab-content").find("iframe[tab-id='"+ tabId + "']").attr('src');
+                        }
+                    }
+
                     // Replace the matched part with the updated appId and userviewId
                     var newUrl = currentUrl.replace(regex, appId + "/" + data["uid"]);
     
@@ -78,6 +85,13 @@ $(document).ready(function () {
             // Regular expression to match the appId/userviewId pattern
             var regex = new RegExp(appId + "/" +UI.userview_id); // Matches "/appId/anyUserviewId"
 
+            if (currentTheme === "org.joget.plugin.enterprise.XadminTheme") {
+                if ($("ul.layui-tab-title").children().length > 0) {
+                    var tabId = $("ul.layui-tab-title > li.layui-this").attr("lay-id");
+                    currentUrl = window.location.origin + $("div.layui-tab-content").find("iframe[tab-id='"+ tabId + "']").attr('src');
+                }
+            }
+
             // Replace the matched part with the updated appId and userviewId
             var newUrl = currentUrl.replace(regex, appId + "/" + UI.userview_id.replace("_mobile", ""));
             
@@ -98,7 +112,7 @@ $(document).ready(function () {
     }
     
     //Check if mobile or not, if it is, switch to mobile theme
-    var isMobile = window.matchMedia("only screen and (max-width: 480px)").matches;
+    var isMobile = UI.isMobileUserAgent();
     
     if (isMobile && !UI.userview_id.includes("_mobile")){
         if (localStorage.getItem("themeChangedManually") === null){
@@ -112,8 +126,8 @@ $(document).ready(function () {
             return containsThemeToggle;
         });
 
-        var allChildrenHidden = visibleChildren.length === $("li#"+menuId).closest("ul.menu-container").children().length;
-
+        var allChildrenHidden = visibleChildren.length === $("li#"+menuId).parent().children().length;
+        
         if (allChildrenHidden){
             $("li#"+menuId).closest("li.category").hide();
         }
