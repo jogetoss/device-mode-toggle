@@ -1,6 +1,7 @@
 $(document).ready(function(){
     var themeToggles = $("li.menu").has("input#themeToggle");
     var liSelector = $("#%s");
+    var currentTheme = parent.CustomBuilder.data.setting.properties.theme.className;
     
     if (liSelector.length && themeToggles.length && liSelector[0] !== themeToggles.first()[0]) {
         liSelector.find("div.toggle").hide();

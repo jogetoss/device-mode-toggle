@@ -10,9 +10,9 @@ $(document).ready(function () {
     var mobileMessage = "@@org.joget.marketplace.viewmodetoggle.mobileToast@@";
     var errorMessage = "@@org.joget.marketplace.viewmodetoggle.errorMessage@@";
 
-    $("#themeToggle").siblings(".toggle-group").click(function (e) {
-        var toggle = $("#themeToggle").prop("checked");
-        
+    $("#themeToggle > input").click(function (e) {
+        var toggle = $(this).prop("checked") === false;
+
         if (isMobile){
             if (localStorage.getItem("themeChangedManually") === 'true'){
                 localStorage.removeItem("themeChangedManually");
@@ -40,10 +40,12 @@ $(document).ready(function () {
             setTimeout(function(){
                 $("#themeSwitchToast").remove();
             }, 2000);
-
+            
             $.ajax({
                 url: contextPath + "/web/json/plugin/org.joget.marketplace.ViewModeToggle/service?switch_theme=" + theme + "&appId=" + appId + "&appVersion=" + appVersion + "&mobileTheme=true" + "&uId=" + UI.userview_id+"&menuId="+window.location.href.split('/').pop(),
                 success: function(data) {
+                    console.log(data)
+
                     // Get the current URL
                     var currentUrl = window.location.href;
     
@@ -64,10 +66,12 @@ $(document).ready(function () {
     
                     window.location.href = newUrl;
                 },
-                error: function(data){
-                    if (localStorage.getItem("themeChangedManually") === null){
-                        toggleThemeSwitch(mobileTheme);
-                    }
+                error: function(xhr, status, error){
+                    console.log('AJAX error:', error);
+                    console.log('Response:', xhr.responseText);
+                    // if (localStorage.getItem("themeChangedManually") === null){
+                    //     toggleThemeSwitch(mobileTheme);
+                    // }
 
                     if (currentTheme === "org.joget.marketplace.OnsenMobileTheme"){
                         $("<div id='themeSwitchToast' style='visibility:hidden;opacity:0;z-index:1000;width:fit-content;min-width: 150px;box-sizing: border-box;height: 50px;position:fixed;top:15%%;left:50%%;transform:translate(-50%%, -50%%);background-color: #740112;color: #FFFFFF;display: flex;align-items: center;justify-content: center;border-radius: 2px;padding: 16px;text-align: center;'>" + errorMessage + "</div>").appendTo("ons-splitter-content .page__content").css('visibility', 'visible').animate({opacity: 1}, 1000);
@@ -126,7 +130,7 @@ $(document).ready(function () {
         $("li#"+menuId).hide();
         
         var visibleChildren = $("li#"+menuId).closest("ul.menu-container").children().filter(function() {
-            var containsThemeToggle = $(this).find("input#themeToggle").length > 0;
+            var containsThemeToggle = $(this).find("#themeToggle > input").length > 0;
             return containsThemeToggle;
         });
 
@@ -140,7 +144,7 @@ $(document).ready(function () {
     //Specfic for Onsen theme
     $(document).off('click', 'ons-list-item .menu-link').on('click', 'ons-list-item .menu-link', function(event) {
         if ($(event.target).find("#themeToggle").length === 1) {
-            $(event.target).find("#themeToggle").siblings(".toggle-group").click();
+            $(event.target).find("#themeToggle > input").click();
         }
     });
     
@@ -149,7 +153,9 @@ $(document).ready(function () {
     }
     
     if(UI.userview_id.includes("_mobile")){
-        $("#themeToggle").bootstrapToggle("off");
+        $("#themeToggle > input").prop('checked', false);
+    }else {
+        $("#themeToggle > input").prop('checked', true);
     }
 });
 

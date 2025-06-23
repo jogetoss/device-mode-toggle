@@ -1,6 +1,12 @@
 package org.joget.marketplace;
 
 import java.io.IOException;
+import java.util.Map;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.joget.apps.app.dao.UserviewDefinitionDao;
 import org.joget.apps.app.model.AppDefinition;
 import org.joget.apps.app.model.UserviewDefinition;
@@ -13,13 +19,9 @@ import org.joget.apps.userview.service.UserviewService;
 import org.joget.commons.util.SecurityUtil;
 import org.joget.commons.util.StringUtil;
 import org.joget.plugin.base.PluginWebSupport;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import org.json.JSONObject;
 import org.json.JSONArray;
+import org.json.JSONObject;
 import org.springframework.context.ApplicationContext;
-import java.util.Map;
 
 public class ViewModeToggle extends UserviewMenu implements PluginWebSupport {
     private final static String MESSAGE_PATH = "messages/ViewModeToggle";
@@ -69,45 +71,33 @@ public class ViewModeToggle extends UserviewMenu implements PluginWebSupport {
         return false;
     }
      
-    @Override
+     @Override
     public String getDecoratedMenu() {
         String menu = "";
        
         if (getPropertyString("themeAlternative") != null && !getPropertyString("themeAlternative").isEmpty())
         {
+
+            Map<String, Object> themeProperties = (Map<String, Object>) properties.get("themeAlternative");
+
             boolean isPreview = "true".equals(getRequestParameter("isPreview"));
-            this.getPropertyString("themeAlternative");
             String label = this.getPropertyString("label");
             if (label != null) {
                 label = StringUtil.stripHtmlRelaxed(label);
             }
 
-            menu += "<a class='menu-link default'><span>" + label + "</span>\n" +
-                    "  <input id=\"themeToggle\" data-width=\"35\" data-height=\"22\" data-on=\"<i class='fas fa-desktop'></i>\" data-size=\"mini\" data-offstyle=\"danger\" data-off=\"<i class='fas fa-mobile-alt'></i>\" type=\"checkbox\" checked data-toggle=\"toggle\" data-style=\"ios\">\r\n" + //
+            menu += "<a class='menu-link default' style='display:flex;align-items:center;column-gap:8px'><span>" + label + "</span>\n" +
+                    "<label class=\"toggle-theme-switch\" id=\"themeToggle\">\r\n" + //
+                    "  <input type=\"checkbox\">\r\n" + //
+                    "  <span class=\"slider\"></span>\r\n" + //
+                    "</label>" +
                     "</a>\n";
             menu += "<script>" + AppUtil.readPluginResource(getClassName(), "/resources/js/bootstrap4-toggle.min.js", null, false , MESSAGE_PATH) + "</script>";
             menu += "<style>\n" + 
-                    AppUtil.readPluginResource(getClassName(), "/resources/css/rtl_style.css", null, true , MESSAGE_PATH) +     
-                    AppUtil.readPluginResource(getClassName(), "/resources/css/bootstrap4-toggle.min.css", null, true , MESSAGE_PATH) +     
-                    ".toggle-group label.toggle-on{\r\n" + //
-                    "        right:50%;\r\n" + //
-                    "        margin: 0px !important;" +
-                    "    }\r\n" + //
-                    "    .toggle-group label.toggle-off{\r\n" + //
-                    "        left:55%;\r\n" + //
-                    "        margin: 0px !important;" +
-                    "    }\r\n" + //
-                    "    .toggle-group span.toggle-handle{\r\n" + //
-                    "        border-radius:90px !important;\r\n" + //
-                    "        margin: 0px !important;" +
-                    "    }\r\n" + //
-                    "    .toggle-group label i{\r\n" + //
-                    "        padding: 0px !important;" +
-                    "    }\r\n" + //
-                    "    .toggle.ios, .toggle-on.ios, .toggle-off.ios { border-radius: 20px !important; }" +
+                    AppUtil.readPluginResource(getClassName(), "/resources/css/toggleTheme.css", null, true , MESSAGE_PATH) +
                     "\n</style>\n";
             String id = getPropertyString("id");
-            menu += "<script>" + AppUtil.readPluginResource(getClassName(), "/resources/js/usageCheck.js", new Object[]{id, isPreview}, false , MESSAGE_PATH) + "</script>\n";
+            menu += "<script>" + AppUtil.readPluginResource(getClassName(), "/resources/js/usageCheck.js", new Object[]{id, themeProperties.get("className"), isPreview}, false , MESSAGE_PATH) + "</script>\n";
 
             //Add the Script and Stylesheet
             if (!isPreview){
@@ -117,7 +107,6 @@ public class ViewModeToggle extends UserviewMenu implements PluginWebSupport {
                 String appId = AppUtil.getCurrentAppDefinition().getAppId();
                 String appVersion = AppUtil.getCurrentAppDefinition().getVersion().toString();
 
-                Map<String, Object> themeProperties = (Map<String, Object>) properties.get("themeAlternative");
                 UserviewSetting u = getUserview().getSetting();
                     
                 Map<String, Object> themeProp = u.getProperties();
@@ -170,7 +159,7 @@ public class ViewModeToggle extends UserviewMenu implements PluginWebSupport {
             JSONObject themeAltObject = null;
             JSONObject themeAltPropObject = null;
 
-            //Create mobile App
+            //Create mobile userview
             // Iterate through categories
             JSONArray categories = userviewObj.getJSONArray("categories");
             outerLoop:
